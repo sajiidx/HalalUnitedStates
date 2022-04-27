@@ -5,7 +5,6 @@ import OrderListHeader from './OrderListHeader';
 import OrderListItem from './OrderListItem';
 
 export function Order({navigation, orders}) {
-    console.log(orders)
     return (
         <View style={{flex: 1}}>
             <FlatList

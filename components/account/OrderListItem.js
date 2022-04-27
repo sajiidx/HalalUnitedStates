@@ -13,7 +13,7 @@ export default function OrderListItem({item}) {
         .then((result) => {
             setCustomer(result.data())
             console.log(result.data())
-        })
+        }).catch((error) => alert(error))
     }, [])
     return (
         <View style={styles.container}>
