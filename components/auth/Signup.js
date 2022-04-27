@@ -22,6 +22,11 @@ export class Signin extends Component{
         const { email, password, first_name, last_name }  = this.state;
         firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((result) => {
+            firebase.firestore().collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .set({
+                exists: true
+            })
             firebase.firestore().collection("Customers")
             .doc(firebase.auth().currentUser.uid)
             .set({

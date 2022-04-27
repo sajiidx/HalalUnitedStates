@@ -62,7 +62,37 @@ export default class App extends Component {
           loaded: true,
         })
       } else {
-        this.setState({
+
+        var userStatusDatabaseRef = firebase.database().ref('/status/' + user.uid);
+        var isOfflineForDatabase = {
+          state: 'offline',
+          last_changed: firebase.database.ServerValue.TIMESTAMP,
+        };
+    
+        var isOnlineForDatabase = {
+            state: 'online',
+            last_changed: firebase.database.ServerValue.TIMESTAMP,
+        };
+        var userStatusFirestoreRef = firebase.firestore().doc('/Stores/' + user.uid);
+          var isOfflineForFirestore = {
+              state: 'offline',
+              last_changed: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+          var isOnlineForFirestore = {
+              state: 'online',
+              last_changed: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+          firebase.database().ref('.info/connected').on('value', function(snapshot) {
+            if (snapshot.val() == false) {
+                userStatusFirestoreRef.set(isOfflineForFirestore, {merge: true});
+                return;
+            };
+            userStatusDatabaseRef.onDisconnect().set(isOfflineForDatabase).then(function() {
+                userStatusDatabaseRef.set(isOnlineForDatabase);
+                userStatusFirestoreRef.set(isOnlineForFirestore, {merge: true});
+            });
+          });
+          this.setState({
           loggedIn: true,
           loaded: true,
         });

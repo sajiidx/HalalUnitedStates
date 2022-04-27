@@ -23,6 +23,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 const LeftContent = props => <Avatar.Icon {...props} icon="folder" />
 let wishlist = {};
 let cart = {};
+let count = 0;
 
 function truncateString(str, num) {
     if (str.length > num) {
@@ -69,6 +70,16 @@ function Product(props) {
     
 
     useEffect(() => {
+        if(count == 0 && item.store != firebase.auth().currentUser.uid){
+            firebase.database()
+            .ref('products')
+            .child(item.id)
+            .child('impressions')
+            .set(firebase.database.ServerValue.increment(1))
+            .then((result) => count+= 1)
+            
+        }
+
         firebase.firestore().collection("Stores").doc(item.store).get()
         .then((snapshot)=>{
             if(snapshot.exists){
@@ -110,7 +121,31 @@ function Product(props) {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => props.navigation.navigate("ProductDetails", {item})} style={styles.imageContainer}>
+            <TouchableOpacity onPress={() => {
+                if(item.store != firebase.auth().currentUser.uid){
+                    firebase.firestore()
+                    .collection("Activity")
+                    .doc(firebase.auth().currentUser.uid)
+                    .collection("Logs")
+                    .add({
+                        time: firebase.firestore.FieldValue.serverTimestamp(),
+                        subject: firebase.auth().currentUser.uid,
+                        subjectType: "Customer",
+                        object: item.id,
+                        objectType: "Product",
+                        action: "Viewed",
+                        actionType: "Read"
+                    }).then((snap) => {
+                        firebase.database()
+                        .ref('products')
+                        .child(item.id)
+                        .child('clicks')
+                        .set(firebase.database.ServerValue.increment(1))
+                        .then((result) => console.log("Done"))
+                    }).catch((error) => console.error(error))
+                }
+                props.navigation.navigate("ProductDetails", {item});
+            }} style={styles.imageContainer}>
                 <Image resizeMode={"contain"} style={styles.image} source={{ uri: item.downloadURL }} />
             </TouchableOpacity>
             <View style={styles.productDetails}>
@@ -148,36 +183,6 @@ function Product(props) {
                 
             </View>
             )}
-            
-            {/* <View style={styles.sellerDetails}>
-                <Text>{store}</Text>
-                <Text>{`owner: ${seller}`}</Text>
-            </View>
-            
-            <View>
-                <Text>{item.title}</Text>
-                <Text>{item.description}</Text>
-                <Text style={{fontWeight: 'bold'}}>Price: ${item.price}</Text>
-                <Text>Rating: {item.rating}</Text>
-            </View>
-            
-            <View>
-                {(addedInWishlist)?(
-                    <TouchableOpacity onPress={RemoveItemFromWishList} >
-                        <Image source={{uri: require('../../images/fav2x.png')}} style={{tintColor: 'red', height: 20, width: 20}} />
-                    </TouchableOpacity>
-                ): (
-                    <TouchableOpacity onPress={AddItemInWishList} >
-                        <Image source={{uri: require('../../images/unfav2x.png')}} style={{tintColor: 'darkgray', height: 20, width: 20}} />
-                    </TouchableOpacity>
-                )}
-                {(addedInCart)?(
-                    <Button onPress={RemoveItemFromCart} title="Remove from Cart" />
-                ):(
-                    <Button onPress={AddItemToCart} title="Add to Cart"/>
-                )}
-                
-            </View> */}
         </View>
     );
 }

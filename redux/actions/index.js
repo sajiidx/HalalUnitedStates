@@ -172,7 +172,21 @@ export function addItemToCart(item){
             quantity: 1
         })
         .then((result)=>{
-            dispatch({type: actions.ADDED_ITEM_IN_CART, item: {qont: 1, ...item}});
+            firebase.firestore()
+            .collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("Logs")
+            .add({
+                time: firebase.firestore.FieldValue.serverTimestamp(),
+                subject: firebase.auth().currentUser.uid,
+                subjectType: "Customer",
+                object: item.id,
+                objectType: "Product",
+                action: "Item added to cart",
+                actionType: "Write"
+            }).then((snap) => {
+                dispatch({type: actions.ADDED_ITEM_IN_CART, item: {qont: 1, ...item}});
+            }).catch((error) => console.error(error))
         })
         .catch((error)=>{
             console.error(error);
@@ -189,7 +203,21 @@ export function removeItemFromCart(itemID){
         .doc(itemID)
         .delete()
         .then((result)=>{
-            dispatch({type: actions.REMOVED_ITEM_FROM_CART, itemID});
+            firebase.firestore()
+            .collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("Logs")
+            .add({
+                time: firebase.firestore.FieldValue.serverTimestamp(),
+                subject: firebase.auth().currentUser.uid,
+                subjectType: "Customer",
+                object: itemID,
+                objectType: "Product",
+                action: "Item removed from cart",
+                actionType: "Write"
+            }).then((snap) => {
+                dispatch({type: actions.REMOVED_ITEM_FROM_CART, itemID});
+            }).catch((error) => console.error(error))
         })
         .catch((error)=>{
             console.error(error);
@@ -319,7 +347,21 @@ export function addItemToWishlist(item){
             quantity: 1
         })
         .then((result)=>{
-            dispatch({type: actions.ADDED_ITEM_IN_WISHLIST, item: item});
+            firebase.firestore()
+            .collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("Logs")
+            .add({
+                time: firebase.firestore.FieldValue.serverTimestamp(),
+                subject: firebase.auth().currentUser.uid,
+                subjectType: "Customer",
+                object: item.id,
+                objectType: "Product",
+                action: "Item added to wishlist",
+                actionType: "Write"
+            }).then((snap) => {
+                dispatch({type: actions.ADDED_ITEM_IN_WISHLIST, item: item});
+            }).catch((error) => console.error(error))
         })
         .catch((error)=>{
             console.error(error);
@@ -336,7 +378,21 @@ export function removeItemFromWishlist(itemID){
         .doc(itemID)
         .delete()
         .then((result)=>{
-            dispatch({type: actions.REMOVED_ITEM_FROM_WISHLIST, itemID});
+            firebase.firestore()
+            .collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("Logs")
+            .add({
+                time: firebase.firestore.FieldValue.serverTimestamp(),
+                subject: firebase.auth().currentUser.uid,
+                subjectType: "Customer",
+                object: itemID,
+                objectType: "Product",
+                action: "Item added to cart",
+                actionType: "Write"
+            }).then((snap) => {
+                dispatch({type: actions.REMOVED_ITEM_FROM_WISHLIST, itemID});
+            }).catch((error) => console.error(error))
         })
         .catch((error)=>{
             console.error(error);

@@ -59,8 +59,22 @@ export class CheckoutScreen extends Component{
 
             Promise.all(promises)
             .then((results) => {
-                alert("Order Placed Successfully");
-                this.props.navigation.popToTop();
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Customer",
+                    object: order.id.trim(),
+                    objectType: "Order",
+                    action: "Placed Order",
+                    actionType: "Write"
+                }).then((snap) => {
+                    alert("Order Placed Successfully");
+                    this.props.navigation.popToTop();
+                }).catch((error) => console.error(error))
             })
             .catch((err) => {
                 alert(err.message)

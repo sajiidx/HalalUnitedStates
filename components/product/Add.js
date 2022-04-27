@@ -80,9 +80,23 @@ export default function Add({ navigation }) {
             store: firebase.auth().currentUser.uid,
             rating: 0
         })
-        .then((function(){
-            navigation.popToTop();
-        }))
+        .then((snap) => {
+            firebase.firestore()
+            .collection("Activity")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("Logs")
+            .add({
+                time: firebase.firestore.FieldValue.serverTimestamp(),
+                subject: firebase.auth().currentUser.uid,
+                subjectType: "Seller",
+                object: snap.id,
+                objectType: "Product",
+                action: "Item added to Store",
+                actionType: "Write"
+            }).then((snap) => {
+                navigation.popToTop();
+            }).catch((error) => console.error(error))
+        })
         .catch((error) => {
             console.log(error);
         });
