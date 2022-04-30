@@ -38,6 +38,7 @@ export class Main extends Component {
                         ),
                     }} />
                 <Tab.Screen name="DeleteProduct" component={DeleteProduct} navigation={this.props.navigation}
+                    initialParams={{store: firebase.auth().currentUser.uid}}
                     options={{
                         tabBarIcon: ({ color, size }) => (
                             <MaterialCommunityIcons name="minus" color={color} size={26} />

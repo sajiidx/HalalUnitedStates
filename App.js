@@ -26,6 +26,7 @@ import ForgetPasswordscreen from './components/auth/ForgetPasswordscreen';
 import ProductDetailsScreen from './screens/ProductDetailsScreen';
 import CategoryProductsScreen from './screens/CategoryProductsScreen';
 import CheckoutScreen from './screens/CheckoutScreen';
+import StoreScreen from './screens/StoreScreen';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -75,11 +76,11 @@ export default class App extends Component {
         };
         var userStatusFirestoreRef = firebase.firestore().doc('/Stores/' + user.uid);
           var isOfflineForFirestore = {
-              state: 'offline',
+              status: 'offline',
               last_changed: firebase.firestore.FieldValue.serverTimestamp(),
           };
           var isOnlineForFirestore = {
-              state: 'online',
+              status: 'online',
               last_changed: firebase.firestore.FieldValue.serverTimestamp(),
           };
           firebase.database().ref('.info/connected').on('value', function(snapshot) {
@@ -137,6 +138,7 @@ export default class App extends Component {
               <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
               <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
               <Stack.Screen name="Checkout" component={CheckoutScreen} />
+              <Stack.Screen name="Store" component={StoreScreen} />
             </Stack.Navigator>
         </NavigationContainer>
       </Provider>

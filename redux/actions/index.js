@@ -172,21 +172,36 @@ export function addItemToCart(item){
             quantity: 1
         })
         .then((result)=>{
+
             firebase.firestore()
-            .collection("Activity")
-            .doc(firebase.auth().currentUser.uid)
             .collection("Logs")
             .add({
                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                subject: firebase.auth().currentUser.uid,
-                subjectType: "Customer",
+                user: firebase.auth().currentUser.uid,
+                userRole: "Customer",
                 object: item.id,
                 objectType: "Product",
-                action: "Item added to cart",
+                on: "Cart",
+                action: "Added",
                 actionType: "Write"
-            }).then((snap) => {
-                dispatch({type: actions.ADDED_ITEM_IN_CART, item: {qont: 1, ...item}});
+            }).then((snap)=> {
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Customer",
+                    object: item.id,
+                    objectType: "Product",
+                    action: "Item added to cart",
+                    actionType: "Write"
+                }).then((snap) => {
+                    dispatch({type: actions.ADDED_ITEM_IN_CART, item: {qont: 1, ...item}});
+                }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))
+
         })
         .catch((error)=>{
             console.error(error);
@@ -203,21 +218,38 @@ export function removeItemFromCart(itemID){
         .doc(itemID)
         .delete()
         .then((result)=>{
+
             firebase.firestore()
-            .collection("Activity")
-            .doc(firebase.auth().currentUser.uid)
             .collection("Logs")
             .add({
                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                subject: firebase.auth().currentUser.uid,
-                subjectType: "Customer",
+                user: firebase.auth().currentUser.uid,
+                userRole: "Customer",
                 object: itemID,
                 objectType: "Product",
-                action: "Item removed from cart",
+                on: "Cart",
+                action: "Removed",
                 actionType: "Write"
-            }).then((snap) => {
-                dispatch({type: actions.REMOVED_ITEM_FROM_CART, itemID});
+            }).then((snap)=> {
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Customer",
+                    object: itemID,
+                    objectType: "Product",
+                    action: "Item removed from cart",
+                    actionType: "Write"
+                }).then((snap) => {
+                    dispatch({type: actions.REMOVED_ITEM_FROM_CART, itemID});
+                }).catch((error) => console.error(error))
+
             }).catch((error) => console.error(error))
+
+            
         })
         .catch((error)=>{
             console.error(error);
@@ -347,20 +379,34 @@ export function addItemToWishlist(item){
             quantity: 1
         })
         .then((result)=>{
+
             firebase.firestore()
-            .collection("Activity")
-            .doc(firebase.auth().currentUser.uid)
             .collection("Logs")
             .add({
                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                subject: firebase.auth().currentUser.uid,
-                subjectType: "Customer",
+                user: firebase.auth().currentUser.uid,
+                userRole: "Customer",
                 object: item.id,
                 objectType: "Product",
-                action: "Item added to wishlist",
+                on: "Wishlist",
+                action: "Added",
                 actionType: "Write"
-            }).then((snap) => {
-                dispatch({type: actions.ADDED_ITEM_IN_WISHLIST, item: item});
+            }).then((snap)=> {
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Customer",
+                    object: item.id,
+                    objectType: "Product",
+                    action: "Item added to wishlist",
+                    actionType: "Write"
+                }).then((snap) => {
+                    dispatch({type: actions.ADDED_ITEM_IN_WISHLIST, item: item});
+                }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))
         })
         .catch((error)=>{
@@ -378,21 +424,35 @@ export function removeItemFromWishlist(itemID){
         .doc(itemID)
         .delete()
         .then((result)=>{
+
             firebase.firestore()
-            .collection("Activity")
-            .doc(firebase.auth().currentUser.uid)
             .collection("Logs")
             .add({
                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                subject: firebase.auth().currentUser.uid,
-                subjectType: "Customer",
+                user: firebase.auth().currentUser.uid,
+                userRole: "Customer",
                 object: itemID,
                 objectType: "Product",
-                action: "Item added to cart",
+                on: "Wishlist",
+                action: "Removed",
                 actionType: "Write"
-            }).then((snap) => {
-                dispatch({type: actions.REMOVED_ITEM_FROM_WISHLIST, itemID});
-            }).catch((error) => console.error(error))
+            }).then((snap)=> {
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Customer",
+                    object: itemID,
+                    objectType: "Product",
+                    action: "Item removed from wishlist",
+                    actionType: "Write"
+                }).then((snap) => {
+                    dispatch({type: actions.REMOVED_ITEM_FROM_WISHLIST, itemID});
+                }).catch((error) => console.error(error))
+            }).catch((error) => console.error(error))            
         })
         .catch((error)=>{
             console.error(error);

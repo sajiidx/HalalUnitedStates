@@ -16,7 +16,7 @@ export function StoreImagesScreen(props) {
     useEffect(() => {
         firebase.firestore()
         .collection("Stores")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(props.id)
         .onSnapshot((snapshot) => {
             setURLs(snapshot.data().urls);
         },(error) => console.error(error), () => setTimeout(true));

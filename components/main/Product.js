@@ -35,7 +35,7 @@ function truncateString(str, num) {
 
 function Product(props) {
     const {item} = props;
-
+    const [sdel, setSdel] = useState(props.sdel)
     const [seller, setSeller] = useState('');
     const [store, setStore] = useState('');
     const [category, setCategory] = useState('');
@@ -119,30 +119,62 @@ function Product(props) {
         }
     }, [props.cart.items, props.wishlist.items, props.gui.cart.items, props.gui.wishlist.items]);
 
+    if(sdel){
+        return (
+            <View style={{flex: 1, margin: 10, ...styles.container}}>
+                <TouchableOpacity onPress={() => props.navigation.navigate("ProductDetails", {item})} style={styles.imageContainer}>
+                    <Image resizeMode={"contain"} style={styles.image} source={{ uri: item.downloadURL }} />
+                </TouchableOpacity>
+                <View style={styles.productDetails}>
+                    <Text style={styles.title}>{truncateString(item.title, 15)}</Text>
+                    <Text style={styles.category}>{category}</Text>
+                    <Text style={styles.price}>${item.price}</Text>
+                </View>
+                <View>
+                    <Button title='Delete' onPress={() => console.log("Deleted!")} />
+                </View>
+            </View>
+        )
+    }
+
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => {
                 if(item.store != firebase.auth().currentUser.uid){
                     firebase.firestore()
-                    .collection("Activity")
-                    .doc(firebase.auth().currentUser.uid)
                     .collection("Logs")
                     .add({
                         time: firebase.firestore.FieldValue.serverTimestamp(),
-                        subject: firebase.auth().currentUser.uid,
-                        subjectType: "Customer",
+                        user: firebase.auth().currentUser.uid,
+                        userRole: "Customer",
                         object: item.id,
                         objectType: "Product",
+                        on: "Product",
                         action: "Viewed",
                         actionType: "Read"
-                    }).then((snap) => {
-                        firebase.database()
-                        .ref('products')
-                        .child(item.id)
-                        .child('clicks')
-                        .set(firebase.database.ServerValue.increment(1))
-                        .then((result) => console.log("Done"))
+                    }).then((snap)=> {
+                        firebase.firestore()
+                        .collection("Activity")
+                        .doc(firebase.auth().currentUser.uid)
+                        .collection("Logs")
+                        .add({
+                            time: firebase.firestore.FieldValue.serverTimestamp(),
+                            subject: firebase.auth().currentUser.uid,
+                            subjectType: "Customer",
+                            object: item.id,
+                            objectType: "Product",
+                            action: "Viewed",
+                            actionType: "Read"
+                        }).then((snap) => {
+                            firebase.database()
+                            .ref('products')
+                            .child(item.id)
+                            .child('clicks')
+                            .set(firebase.database.ServerValue.increment(1))
+                            .then((result) => console.log("Done"))
+                        }).catch((error) => console.error(error))
                     }).catch((error) => console.error(error))
+                    
                 }
                 props.navigation.navigate("ProductDetails", {item});
             }} style={styles.imageContainer}>

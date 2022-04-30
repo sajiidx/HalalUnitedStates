@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {View, Text, StyleSheet, Image, Button, ScrollView} from 'react-native'
+import {View, Text, StyleSheet, Image, Button, ScrollView, TouchableOpacity} from 'react-native'
 import firebase from 'firebase';
 import "firebase/firestore";
 
@@ -19,6 +19,9 @@ import { fetchCartItems,
 
 let wishlist = {};
 let cart = {};
+let months = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+]
 
 export function ProductDetailsScreen(props) {
   const [item, setItem] = useState(props.route.params.item)
@@ -103,7 +106,54 @@ export function ProductDetailsScreen(props) {
         <View style={styles.detailsContainer}>
           <View style={styles.header}>
             <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.store}>{store} ({seller})</Text>
+            <TouchableOpacity onPress={() => {
+              if(item.store != firebase.auth().currentUser.uid){
+                  firebase.firestore()
+                  .collection("Logs")
+                  .add({
+                      time: firebase.firestore.FieldValue.serverTimestamp(),
+                      user: firebase.auth().currentUser.uid,
+                      userRole: "Customer",
+                      object: item.store,
+                      objectType: "Store",
+                      on: "Store",
+                      action: "Visited",
+                      actionType: "Read"
+                  }).then((snap)=> {
+                      firebase.firestore()
+                      .collection("Activity")
+                      .doc(firebase.auth().currentUser.uid)
+                      .collection("Logs")
+                      .add({
+                          time: firebase.firestore.FieldValue.serverTimestamp(),
+                          subject: firebase.auth().currentUser.uid,
+                          subjectType: "Customer",
+                          object: item.store,
+                          objectType: "Store",
+                          action: "Visited",
+                          actionType: "Read"
+                      }).then((snap) => {
+                          firebase.database()
+                          .ref('store')
+                          .child(item.store)
+                          .child('visits')
+                          .set(firebase.database.ServerValue.increment(1))
+                          .then((result) => console.log("Done"))
+                          firebase.database()
+                          .ref('store')
+                          .child(item.store)
+                          .child("History")
+                          .set({
+                            [months[new Date().getMonth()]+":"+new Date().getFullYear().toString()]: firebase.database.ServerValue.increment(1)
+                          })
+                          .then((result) => console.log("Done"))
+                      }).catch((error) => console.error(error))
+                  }).catch((error) => console.error(error))
+              }
+              props.navigation.navigate("Store", {id: item.store})
+              }}>
+              <Text style={styles.store}>{store} ({seller})</Text>
+            </TouchableOpacity>
             <Text style={styles.description}>{category}</Text>
             <Text>Rating: {item.rating}</Text>
           </View>

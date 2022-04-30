@@ -10,6 +10,7 @@
   "dependencies": {
     "@expo-google-fonts/dev": "^0.2.0",
     "@freakycoder/react-native-bounceable": "^0.2.5",
+    "@paypal/react-paypal-js": "^7.6.0",
     "@react-navigation/material-bottom-tabs": "^5.3.15",
     "@react-navigation/stack": "^5.14.5",
     "expo": "~42.0.1",

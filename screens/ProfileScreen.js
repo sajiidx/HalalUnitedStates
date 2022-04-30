@@ -173,7 +173,7 @@ function ProfileScreen({profile}) {
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={{fontWeight: '200', color: '#999'}}>Physical appearance of Store: </Text>
             </View>
-            <StoreImagesScreen />
+            <StoreImagesScreen id={firebase.auth().currentUser.uid} />
         </View>
     </ScrollView>
   )

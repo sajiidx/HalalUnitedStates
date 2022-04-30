@@ -8,6 +8,8 @@ export class CheckoutScreen extends Component{
     constructor(props){
         super(props);
 
+        this.date = new Date()
+
         this.state = {
             items: this.props.route.params.items,
             cost: this.props.route.params.cost,
@@ -49,8 +51,22 @@ export class CheckoutScreen extends Component{
                         status: 'pending'
                     })
                     .then((snap) => {
-                        console.log("Done.")
-                        resolve(items[i])
+                        firebase.database()
+                        .ref("store")
+                        .child(items[i].store)
+                        .child("sold")
+                        .child(this.date.getFullYear().toString() + "-" + this.date.getMonth().toString() + "-" + this.date.getDate().toString())
+                        .set(firebase.database.ServerValue.increment(1))
+
+                        firebase.database()
+                        .ref("products")
+                        .child(items[i].id)
+                        .child("quantity")
+                        .set(firebase.database.ServerValue.increment(-items[i].qont))
+                        .then((result) => {
+                            console.log("Done.")
+                            resolve(items[i])
+                        })
                     }).catch((error) => {
                         reject(error);
                     })
@@ -60,21 +76,35 @@ export class CheckoutScreen extends Component{
             Promise.all(promises)
             .then((results) => {
                 firebase.firestore()
-                .collection("Activity")
-                .doc(firebase.auth().currentUser.uid)
                 .collection("Logs")
                 .add({
                     time: firebase.firestore.FieldValue.serverTimestamp(),
-                    subject: firebase.auth().currentUser.uid,
-                    subjectType: "Customer",
+                    user: firebase.auth().currentUser.uid,
+                    userRole: "Customer",
                     object: order.id.trim(),
                     objectType: "Order",
-                    action: "Placed Order",
+                    on: "",
+                    action: "Placed",
                     actionType: "Write"
-                }).then((snap) => {
-                    alert("Order Placed Successfully");
-                    this.props.navigation.popToTop();
+                }).then((snap)=> {
+                    firebase.firestore()
+                    .collection("Activity")
+                    .doc(firebase.auth().currentUser.uid)
+                    .collection("Logs")
+                    .add({
+                        time: firebase.firestore.FieldValue.serverTimestamp(),
+                        subject: firebase.auth().currentUser.uid,
+                        subjectType: "Customer",
+                        object: order.id.trim(),
+                        objectType: "Order",
+                        action: "Placed Order",
+                        actionType: "Write"
+                    }).then((snap) => {
+                        alert("Order Placed Successfully");
+                        this.props.navigation.popToTop();
+                    }).catch((error) => console.error(error))
                 }).catch((error) => console.error(error))
+                    
             })
             .catch((err) => {
                 alert(err.message)

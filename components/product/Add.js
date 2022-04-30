@@ -70,32 +70,51 @@ export default function Add({ navigation }) {
             creation: firebase.firestore.FieldValue.serverTimestamp(),
             downloadURL,
             title,
-            quantity,
+            quantity: parseInt(quantity),
             description,
             keywords: ['Clothes', 'For Women', 'For Kids', 'For Men', 'Electronic'],
-            price,
+            price: parseFloat(price),
             quality,
             category,
             public: true,
             store: firebase.auth().currentUser.uid,
             rating: 0
         })
-        .then((snap) => {
+        .then((snapshot) => {
             firebase.firestore()
-            .collection("Activity")
-            .doc(firebase.auth().currentUser.uid)
             .collection("Logs")
             .add({
                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                subject: firebase.auth().currentUser.uid,
-                subjectType: "Seller",
-                object: snap.id,
+                user: firebase.auth().currentUser.uid,
+                userRole: "Seller",
+                object: snapshot.id,
                 objectType: "Product",
-                action: "Item added to Store",
+                on: "Store",
+                action: "Added",
                 actionType: "Write"
-            }).then((snap) => {
-                navigation.popToTop();
+            }).then((snap)=> {
+                firebase.firestore()
+                .collection("Activity")
+                .doc(firebase.auth().currentUser.uid)
+                .collection("Logs")
+                .add({
+                    time: firebase.firestore.FieldValue.serverTimestamp(),
+                    subject: firebase.auth().currentUser.uid,
+                    subjectType: "Seller",
+                    object: snapshot.id,
+                    objectType: "Product",
+                    action: "Item added to Store",
+                    actionType: "Write"
+                }).then((snap) => {
+                    firebase.database()
+                    .ref("products")
+                    .child(snapshot.id)
+                    .child("quantity")
+                    .set(parseInt(quantity))
+                    .then((result) =>  navigation.popToTop())
+                }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))
+            
         })
         .catch((error) => {
             console.log(error);
