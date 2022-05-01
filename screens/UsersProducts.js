@@ -11,36 +11,38 @@ import { fetchWishlistItems, fetchCartItems, loadCartGUI } from '../redux/action
 
 export function UsersProducts(props) {
     const [store, setStore] = useState(props.route.params.store)
-    const [products, setProducts] = useState([]);
-    const [timeout, setTimeout] = useState(false);
+    const [products, setProducts] = useState(props.currentStoreProducts);
+    const [timeout, setTimeout] = useState(props.TimoutWhileLoadingCurrentStoreProducts);
+    const [error, setError] = useState(props.ErrorWhileLoadingCurrentStoreProducts);
 
     useEffect(() => {
-        if(store){
-            firebase.firestore()
-            .collection("Products")
-            .where("store", "==", store)
-            .orderBy("creation", "desc")
-            .get()
-            .then((snapshot) => {
-                let prods = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    const id = doc.id;
-                    return { id, ...data }
-                })
-                setProducts(prods);
-            }).catch((error) => console.log(error))
-            .finally(() => setTimeout(true));
-        }
-    }, [props.wishlist.items, props.cart.items, props.route.params.category, props.route.params.uid]);
+        setProducts(props.currentStoreProducts)
+    }, [
+        props.currentStoreProducts,
+        props.ErrorWhileLoadingCurrentStoreProducts,
+        props.TimoutWhileLoadingCurrentStoreProducts,
+        props.wishlist.items,
+        props.cart.items,
+        props.route.params.category,
+        props.route.params.uid
+    ]);
 
     const renderProducts = () => {
-        if(!timeout && products.length == 0){
+        if(!timeout){
             return (
                 <View style={styles.container}>
                     <ActivityIndicator size={32} color={'#111'}/>
                 </View>
             )
-        }else if(timeout && products.length == 0){
+        } else if(timeout && error){
+            return (
+                <View style={styles.container}>
+                    <Text>Error Occured While Loading Store Products!</Text>
+                    <Text>{error.message}</Text>
+                </View>
+            )
+        }
+        else if(timeout && products.length == 0){
             return (
                 <View style={styles.container}>
                     <Text>Nothing To Show!</Text>
@@ -85,7 +87,10 @@ const mapStateToProps = (store) => ({
     currentUser: store.userState.currentUser,
     wishlist: store.userState.wishlist,
     cart: store.userState.cart,
-    gui: store.userState.gui
+    gui: store.userState.gui,
+    currentStoreProducts: store.userState.currentStoreProducts,
+    TimoutWhileLoadingCurrentStoreProducts: store.userState.TimoutWhileLoadingCurrentStoreProducts,
+    ErrorWhileLoadingCurrentStoreProducts: store.userState.ErrorWhileLoadingCurrentStoreProducts
 })
 const mapDispatchProps = (dispatch) => bindActionCreators({ fetchWishlistItems, fetchCartItems, loadCartGUI}, dispatch);
 

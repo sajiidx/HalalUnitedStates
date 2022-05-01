@@ -1,6 +1,6 @@
 import * as actions from '../constants/index';
 import firebase from 'firebase';
-import { get } from 'styled-system';
+import { recordActivity } from '../../functions/recordActivity';
 require('firebase/firestore');
 
 
@@ -9,6 +9,34 @@ export function clearData() {
         dispatch({type: actions.CLEAR_DATA});
     })
 }
+
+export function fetchStoreProducts(storeID){
+    return ((dispatch, getState) => {
+        firebase.firestore()
+        .collection("Products")
+        .where("store", "==", storeID)
+        .orderBy("creation", "desc")
+        .onSnapshot((snapshot) => {
+            let currentStoreProducts = snapshot.docs.map(doc => {
+                const data = doc.data();
+                const id = doc.id;
+                return { id, ...data }
+            })
+            dispatch({type: actions.STORE_PRODUCTS_LOADED, currentStoreProducts})
+        },(error) => dispatch({type: actions.STORE_PRODUCTS_FAILED_TO_LOAD, error}))
+    })
+}
+
+export function OnStoreProductSelectedForUpdateOperation(product){
+    return ((dispatch, getState) => {
+        getState().userState.currentStoreProducts.forEach((value, index) => {
+            if(value.id == product){
+                dispatch({type: actions.STORE_PRODUCT_SELECTED_FOR_UPDATE_OPERATION, StoreProductSelectedForUpdateOperation: value})
+            }
+        })
+    })
+}
+
 export function fetchUser() {
     return ((dispatch) => {
         firebase.firestore()
@@ -198,6 +226,7 @@ export function addItemToCart(item){
                     action: "Item added to cart",
                     actionType: "Write"
                 }).then((snap) => {
+                    recordActivity()
                     dispatch({type: actions.ADDED_ITEM_IN_CART, item: {qont: 1, ...item}});
                 }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))
@@ -244,6 +273,7 @@ export function removeItemFromCart(itemID){
                     action: "Item removed from cart",
                     actionType: "Write"
                 }).then((snap) => {
+                    recordActivity()
                     dispatch({type: actions.REMOVED_ITEM_FROM_CART, itemID});
                 }).catch((error) => console.error(error))
 
@@ -405,6 +435,7 @@ export function addItemToWishlist(item){
                     action: "Item added to wishlist",
                     actionType: "Write"
                 }).then((snap) => {
+                    recordActivity()
                     dispatch({type: actions.ADDED_ITEM_IN_WISHLIST, item: item});
                 }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))
@@ -450,6 +481,7 @@ export function removeItemFromWishlist(itemID){
                     action: "Item removed from wishlist",
                     actionType: "Write"
                 }).then((snap) => {
+                    recordActivity()
                     dispatch({type: actions.REMOVED_ITEM_FROM_WISHLIST, itemID});
                 }).catch((error) => console.error(error))
             }).catch((error) => console.error(error))            

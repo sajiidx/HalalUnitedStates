@@ -27,6 +27,7 @@ import ProductDetailsScreen from './screens/ProductDetailsScreen';
 import CategoryProductsScreen from './screens/CategoryProductsScreen';
 import CheckoutScreen from './screens/CheckoutScreen';
 import StoreScreen from './screens/StoreScreen';
+import OrderDetailsScreen from './components/account/OrderDetails'
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -139,6 +140,7 @@ export default class App extends Component {
               <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
               <Stack.Screen name="Checkout" component={CheckoutScreen} />
               <Stack.Screen name="Store" component={StoreScreen} />
+              <Stack.Screen name='OrderDetails' component={OrderDetailsScreen} />
             </Stack.Navigator>
         </NavigationContainer>
       </Provider>

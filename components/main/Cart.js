@@ -56,7 +56,6 @@ function Cart(props) {
                     data={products}
                     renderItem={({item}) => <CartItem item={item} />}
                     keyExtractor={(item, index) => index.toString()}
-                    // ListFooterComponent={() => <TotalCost />}
                 />
             </View>
             <View style={{flex: 2, backgroundColor: '#E8E8E8', height: "100%"}}>

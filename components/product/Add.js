@@ -1,12 +1,22 @@
 import React from 'react';
 import { TextInput, Image, Text, View, Button, StyleSheet, TouchableOpacity, ScrollView} from 'react-native';
 import { useState, useEffect } from 'react';
-import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import firebase from 'firebase';
 import 'firebase/firestore';
 import DropDownPicker from 'react-native-dropdown-picker';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { recordActivity } from '../../functions/recordActivity';
+
+function IsStateValid(state){
+    var valid = true;
+    Object.values(state).forEach((value, index) => {
+        if(!value || !value.toString().trim()){
+            valid = false
+        }
+    })
+    return valid;
+}
 
 export default function Add({ navigation }) {
 
@@ -25,17 +35,11 @@ export default function Add({ navigation }) {
     ]);
 
     const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
-    const [hasCameraPermission, setHasCameraPermission] = useState(null);
-    const [camera, setCamera] = useState(null);
     const [image, setImage] = useState(null);
-    const [type, setType] = useState(Camera.Constants.Type.back);
 
     useEffect(() => {
         (async () => {
-            const cameraStatus = await Camera.requestPermissionsAsync();
-            setHasCameraPermission(cameraStatus.status === 'granted');
-
-            const galleryStatus = await ImagePicker.requestCameraRollPermissionsAsync();
+            const galleryStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
             setHasGalleryPermission(galleryStatus.status === 'granted');
 
             firebase.firestore()
@@ -106,6 +110,7 @@ export default function Add({ navigation }) {
                     action: "Item added to Store",
                     actionType: "Write"
                 }).then((snap) => {
+                    recordActivity()
                     firebase.database()
                     .ref("products")
                     .child(snapshot.id)
@@ -122,6 +127,14 @@ export default function Add({ navigation }) {
     }
 
     const uploadImage = async () => {
+        if(!IsStateValid({ title, quantity, description, price, quality, category })){
+            alert("All Fields Are Required!")
+            return;
+        }
+        if(!image){
+            alert("Please Select An Image For Your Product!")
+            return;
+        }
         const uri = image;
         const childPath = `products/${firebase.auth().currentUser.uid}/${Math.random().toString(36)}`;
         const response = await fetch(uri);
@@ -151,10 +164,10 @@ export default function Add({ navigation }) {
         task.on("state_changed", taskProgress, taskError, taskCompleted);
     }
 
-    if (hasCameraPermission === null || hasGalleryPermission === false) {
+    if (hasGalleryPermission === null) {
         return <View />;
     }
-    if (hasCameraPermission === false || hasGalleryPermission === false) {
+    if (hasGalleryPermission === false) {
         return <Text>No access to camera</Text>;
     }
 

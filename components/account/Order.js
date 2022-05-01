@@ -10,7 +10,7 @@ export function Order({navigation, orders}) {
             <FlatList
                 data={orders}
                 keyExtractor={(item, index) => item.id}
-                renderItem={({item}) => <OrderListItem item={item} />}
+                renderItem={({item}) => <OrderListItem navigation={navigation} item={item} />}
                 ListHeaderComponent={OrderListHeader}
             />
         </View>

@@ -16,6 +16,7 @@ import { fetchCartItems,
   addWishlistItemToGUI,
   removeWishlistItemFromGUI
 } from '../redux/actions';
+import { recordActivity } from '../functions/recordActivity';
 
 let wishlist = {};
 let cart = {};
@@ -143,10 +144,12 @@ export function ProductDetailsScreen(props) {
                           .ref('store')
                           .child(item.store)
                           .child("History")
-                          .set({
-                            [months[new Date().getMonth()]+":"+new Date().getFullYear().toString()]: firebase.database.ServerValue.increment(1)
+                          .child(new Date().getFullYear().toString()+":"+new Date().getMonth())
+                          .set(firebase.database.ServerValue.increment(1))
+                          .then((result) => {
+                            recordActivity()
+                            console.log("Done")
                           })
-                          .then((result) => console.log("Done"))
                       }).catch((error) => console.error(error))
                   }).catch((error) => console.error(error))
               }

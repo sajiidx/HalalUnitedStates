@@ -19,6 +19,7 @@ import { fetchCartItems,
 } from '../../redux/actions';
 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { recordActivity } from '../../functions/recordActivity';
 
 const LeftContent = props => <Avatar.Icon {...props} icon="folder" />
 let wishlist = {};
@@ -166,6 +167,7 @@ function Product(props) {
                             action: "Viewed",
                             actionType: "Read"
                         }).then((snap) => {
+                            recordActivity()
                             firebase.database()
                             .ref('products')
                             .child(item.id)
@@ -192,26 +194,26 @@ function Product(props) {
             ): (
                 <View style={styles.actionsContainer}>
                 
-                {(addedInWishlist)?(
-                    <TouchableOpacity onPress={RemoveItemFromWishList} >
-                        <MaterialCommunityIcons name="heart" size={24} color={"red"} />
-                    </TouchableOpacity>
-                ): (
-                    <TouchableOpacity onPress={AddItemInWishList} >
-                        <MaterialCommunityIcons name="heart-outline" size={24} color={"darkgrey"} />
-                    </TouchableOpacity>
-                )}
-                {(addedInCart)?(
-                    <TouchableOpacity onPress={RemoveItemFromCart} >
-                        <MaterialCommunityIcons name="cart-off" size={24} color={"darkgrey"} />
-                    </TouchableOpacity>
-                    // <Button onPress={RemoveItemFromCart} title="Remove from Cart" />
-                ):(
-                    <TouchableOpacity onPress={AddItemToCart} >
-                        <MaterialCommunityIcons name="cart-plus" size={24} color={"darkgrey"} />
-                    </TouchableOpacity>
-                    // <Button onPress={AddItemToCart} title="Add to Cart"/>
-                )}
+                    {(addedInWishlist)?(
+                        <TouchableOpacity onPress={RemoveItemFromWishList} >
+                            <MaterialCommunityIcons name="heart" size={24} color={"red"} />
+                        </TouchableOpacity>
+                    ): (
+                        <TouchableOpacity onPress={AddItemInWishList} >
+                            <MaterialCommunityIcons name="heart-outline" size={24} color={"darkgrey"} />
+                        </TouchableOpacity>
+                    )}
+                    {(addedInCart)?(
+                        <TouchableOpacity onPress={RemoveItemFromCart} >
+                            <MaterialCommunityIcons name="cart-off" size={24} color={"darkgrey"} />
+                        </TouchableOpacity>
+                        // <Button onPress={RemoveItemFromCart} title="Remove from Cart" />
+                    ):(
+                        <TouchableOpacity onPress={AddItemToCart} >
+                            <MaterialCommunityIcons name="cart-plus" size={24} color={"darkgrey"} />
+                        </TouchableOpacity>
+                        // <Button onPress={AddItemToCart} title="Add to Cart"/>
+                    )}
                 
             </View>
             )}

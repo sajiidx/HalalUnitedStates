@@ -2,7 +2,6 @@ import React, {useState} from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 
 export default function OrderListHeader() {
-    console.log("Sajid Ali")
     return (
         <View style={styles.container}>
             <View style={styles.box}>

@@ -16,7 +16,11 @@ const initialState = {
     },
     cost: 0,
     profile: {},
-    orders: []
+    orders: [],
+    currentStoreProducts: [],
+    TimoutWhileLoadingCurrentStoreProducts: false,
+    ErrorWhileLoadingCurrentStoreProducts: null,
+    StoreProductSelectedForUpdateOperation: null,
 }
 
 export const user = (state = initialState, action) => {
@@ -165,6 +169,25 @@ export const user = (state = initialState, action) => {
             return {
                 ...state,
                 orders: action.orders
+            }
+        case constants.STORE_PRODUCTS_LOADED:
+            return {
+                ...state,
+                currentStoreProducts: action.currentStoreProducts,
+                ErrorWhileLoadingCurrentStoreProducts: null,
+                TimoutWhileLoadingCurrentStoreProducts: true,
+            }
+        case constants.STORE_PRODUCTS_FAILED_TO_LOAD:
+            return {
+                ...state,
+                currentStoreProducts: [],
+                ErrorWhileLoadingCurrentStoreProducts: action.error,
+                TimoutWhileLoadingCurrentStoreProducts: true,
+            }
+        case constants.STORE_PRODUCT_SELECTED_FOR_UPDATE_OPERATION:
+            return {
+                ...state,
+                StoreProductSelectedForUpdateOperation: action.StoreProductSelectedForUpdateOperation
             }
         case constants.CLEAR_DATA:
             return initialState

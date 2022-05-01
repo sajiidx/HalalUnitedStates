@@ -3,6 +3,21 @@ import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity } from 'rea
 
 import firebase from 'firebase';
 import "firebase/firestore";
+import { recordActivity } from '../functions/recordActivity';
+
+function IsStateValid(state){
+    var valid = true;
+    Object.values(state).forEach((value, index) => {
+        if(!value.toString().trim()){
+            valid = false
+        }
+    })
+    return valid;
+}
+
+let months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+]
 
 export class CheckoutScreen extends Component{
     constructor(props){
@@ -19,18 +34,24 @@ export class CheckoutScreen extends Component{
             city: '',
             state: '',
             country: '',
+            phone: '',
         }
         this.onOrderPlace = this.onOrderPlace.bind(this);
     }
 
     onOrderPlace(){
-        const { items, cost, houseno, street, zip, city, state, country}  = this.state;
+        if(!IsStateValid(this.state)){
+            alert("All Fields Are Required!")
+            return;
+        }
+        const { items, cost, houseno, street, zip, city, state, country, phone}  = this.state;
         firebase.firestore()
         .collection('Orders')
         .add({
             items,
             cost,
             creator: firebase.auth().currentUser.uid,
+            phone,
             address: { houseno, street, zip, city, state, country},
             creation: firebase.firestore.FieldValue.serverTimestamp()
         })
@@ -55,7 +76,7 @@ export class CheckoutScreen extends Component{
                         .ref("store")
                         .child(items[i].store)
                         .child("sold")
-                        .child(this.date.getFullYear().toString() + "-" + this.date.getMonth().toString() + "-" + this.date.getDate().toString())
+                        .child([new Date().getFullYear().toString()+":"+new Date().getMonth().toString()])
                         .set(firebase.database.ServerValue.increment(1))
 
                         firebase.database()
@@ -100,6 +121,7 @@ export class CheckoutScreen extends Component{
                         action: "Placed Order",
                         actionType: "Write"
                     }).then((snap) => {
+                        recordActivity()
                         alert("Order Placed Successfully");
                         this.props.navigation.popToTop();
                     }).catch((error) => console.error(error))
@@ -141,13 +163,19 @@ export class CheckoutScreen extends Component{
                                 <TextInput onChangeText={(city) => this.setState({city})} style={styles.textInput}/>
                         </View>
                     </View>
-                    <View style={styles.inputBox}>
+                    <View style={styles.inputBoxRow}>
+                        <View style={styles.cellInputBox}>
                             <Text style={styles.label}>State</Text>
                             <TextInput style={styles.textInput} onChangeText={(state) => this.setState({state})}/>
+                        </View>
+                        <View style={styles.cellInputBox}>
+                            <Text style={styles.label}>Country</Text>
+                            <TextInput style={styles.textInput} onChangeText={(country) => this.setState({country})}/>
+                        </View>
                     </View>
                     <View style={styles.inputBox}>
-                            <Text style={styles.label}>Country</Text>
-                            <TextInput onChangeText={(country) => this.setState({country})} style={styles.textInput}/>
+                        <Text style={styles.label}>Phone No.</Text>
+                        <TextInput onChangeText={(phone) => this.setState({phone})} style={styles.textInput}/>
                     </View>
                     <View style={styles.buttonBox}>
                         <Button onPress={()=> this.onOrderPlace()} color={"black"} title='Place Order'></Button>

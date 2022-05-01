@@ -82,7 +82,8 @@ const CartItem = function(props){
         else
             console.log("Category doesn't Exist");
         });
-    }, [props.wishlist, props.cart, props.gui.cart.items]);
+        setItem(props.item)
+    }, [props.item.id, props.item, props.wishlist, props.cart, props.gui.cart.items]);
 
     return (
         <View key={item.id} style={styles.container}>

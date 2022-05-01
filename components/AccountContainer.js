@@ -3,7 +3,16 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import firebase from 'firebase';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchCartItems, fetchWishlistItems, fetchUser, clearData, loadWishlistGUI, loadCartGUI, fetchOrders} from '../redux/actions/index';
+import { 
+    fetchCartItems,
+    fetchWishlistItems,
+    fetchUser,
+    clearData,
+    loadWishlistGUI,
+    loadCartGUI,
+    fetchOrders,
+    fetchStoreProducts
+} from '../redux/actions/index';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import AccountScreen from './account/Account';
@@ -31,6 +40,7 @@ class AccountContainer extends Component {
         this.props.loadCartGUI();
         this.props.fetchCartItems();
         this.props.fetchOrders();
+        this.props.fetchStoreProducts(firebase.auth().currentUser.uid);
     }
     render() {
         return (
@@ -88,7 +98,8 @@ const mapDispatchProps = (dispatch) => bindActionCreators({
     loadCartGUI,
     fetchUser,
     clearData,
-    fetchOrders
+    fetchOrders,
+    fetchStoreProducts
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchProps)(AccountContainer);

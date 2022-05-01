@@ -4,7 +4,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import firebase from 'firebase';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { fetchUser, clearData } from '../../redux/actions/index';
+import { fetchUser, clearData, fetchStoreProducts } from '../../redux/actions/index';
 
 import AddProduct from '../product/Add';
 import UpdateProduct from '../product/Update';
@@ -19,8 +19,7 @@ const EmptyScreen = () => {
 export class Main extends Component {
     componentDidMount() {
         this.props.fetchUser();
-        // this.props.fetchUserPosts();
-        // this.props.fetchUserFollowing();
+        this.props.fetchStoreProducts(firebase.auth().currentUser.uid);
     }
     render() {
         return (
@@ -37,13 +36,13 @@ export class Main extends Component {
                             <MaterialCommunityIcons name="update" color={color} size={26} />
                         ),
                     }} />
-                <Tab.Screen name="DeleteProduct" component={DeleteProduct} navigation={this.props.navigation}
+                {/* <Tab.Screen name="DeleteProduct" component={DeleteProduct} navigation={this.props.navigation}
                     initialParams={{store: firebase.auth().currentUser.uid}}
                     options={{
                         tabBarIcon: ({ color, size }) => (
                             <MaterialCommunityIcons name="minus" color={color} size={26} />
                         ),
-                }} />
+                }} /> */}
             </Tab.Navigator>
         )
     }
@@ -52,6 +51,10 @@ export class Main extends Component {
 const mapStateToProps = (store) => ({
     currentUser: store.userState.currentUser
 })
-const mapDispatchProps = (dispatch) => bindActionCreators({ fetchUser,  clearData }, dispatch);
+const mapDispatchProps = (dispatch) => bindActionCreators({
+    fetchStoreProducts,
+    fetchUser,
+    clearData
+}, dispatch);
 
 export default connect(mapStateToProps, mapDispatchProps)(Main);

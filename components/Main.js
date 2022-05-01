@@ -11,7 +11,8 @@ import {
   loadCartGUI,
   loadWishlistGUI,
   loadCost,
-  fetchProfile
+  fetchProfile,
+  fetchStoreProducts
 } from '../redux/actions';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
