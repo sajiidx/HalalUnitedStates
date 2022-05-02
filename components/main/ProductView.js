@@ -4,7 +4,7 @@ import Product from './Product';
 import firebase from 'firebase';
 import { useState, useEffect } from 'react';
 require('firebase/firestore');
-
+import { Dimensions } from "react-native";
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchWishlistItems, fetchCartItems, loadCartGUI } from '../../redux/actions';
@@ -53,6 +53,22 @@ export function ProductView(props) {
         )
     }
 
+    if(Dimensions.get("window").width <= 580){
+        return(
+            <View style={mstyles.container}>
+                <FlatList
+                    style={{flex: 1}}
+                    data={products}
+                    renderItem={({item}) => <Product navigation={props.navigation} item={item} />}
+                    keyExtractor={(item, index) => item.id}
+                    numColumns={2}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        )
+    }
+
     return (
         <View style={styles.container}>
             {
@@ -61,6 +77,19 @@ export function ProductView(props) {
         </View>
     );
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    empty: {
+        flex: 1,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+})
 
 const styles = StyleSheet.create({
     container: {

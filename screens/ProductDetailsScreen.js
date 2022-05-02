@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import {View, Text, StyleSheet, Image, Button, ScrollView, TouchableOpacity} from 'react-native'
+import {View, Text, StyleSheet, Image, Button, ScrollView, Dimensions, TouchableOpacity} from 'react-native'
 import firebase from 'firebase';
 import "firebase/firestore";
 
@@ -23,6 +23,7 @@ let cart = {};
 let months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ]
+const screenWidth = Dimensions.get("window").width;
 
 export function ProductDetailsScreen(props) {
   const [item, setItem] = useState(props.route.params.item)
@@ -97,9 +98,99 @@ export function ProductDetailsScreen(props) {
         }
     }
   }, [props.route.params.item, props.cart.items, props.wishlist.items, props.gui.cart.items, props.gui.wishlist.items])
-
+  if(screenWidth <= 580){
+    return (
+      <View style={mstyles.container}>
+          <View style={mstyles.imageContainer}>
+            <Image resizeMode={"contain"} style={mstyles.image} source={{ uri: item.downloadURL }} />
+          </View>
+          <View style={mstyles.detailsContainer}>
+            <View style={mstyles.header}>
+              <Text style={mstyles.title}>{item.title}</Text>
+              <TouchableOpacity onPress={() => {
+                if(item.store != firebase.auth().currentUser.uid){
+                    firebase.firestore()
+                    .collection("Logs")
+                    .add({
+                        time: firebase.firestore.FieldValue.serverTimestamp(),
+                        user: firebase.auth().currentUser.uid,
+                        userRole: "Customer",
+                        object: item.store,
+                        objectType: "Store",
+                        on: "Store",
+                        action: "Visited",
+                        actionType: "Read"
+                    }).then((snap)=> {
+                        firebase.firestore()
+                        .collection("Activity")
+                        .doc(firebase.auth().currentUser.uid)
+                        .collection("Logs")
+                        .add({
+                            time: firebase.firestore.FieldValue.serverTimestamp(),
+                            subject: firebase.auth().currentUser.uid,
+                            subjectType: "Customer",
+                            object: item.store,
+                            objectType: "Store",
+                            action: "Visited",
+                            actionType: "Read"
+                        }).then((snap) => {
+                            firebase.database()
+                            .ref('store')
+                            .child(item.store)
+                            .child('visits')
+                            .set(firebase.database.ServerValue.increment(1))
+                            .then((result) => console.log("Done"))
+                            firebase.database()
+                            .ref('store')
+                            .child(item.store)
+                            .child("History")
+                            .child(new Date().getFullYear().toString()+":"+new Date().getMonth())
+                            .set(firebase.database.ServerValue.increment(1))
+                            .then((result) => {
+                              recordActivity()
+                              console.log("Done")
+                            })
+                        }).catch((error) => console.error(error))
+                    }).catch((error) => console.error(error))
+                }
+                props.navigation.navigate("Store", {id: item.store})
+                }}>
+                <Text style={mstyles.store}>{store} ({seller})</Text>
+              </TouchableOpacity>
+              <Text style={mstyles.description}>{category}</Text>
+              <Text>Rating: {item.rating}</Text>
+            </View>
+            <View style={mstyles.descriptionContainer}>
+              <Text style={mstyles.description}>{item.description}</Text>
+            </View>
+            <View style={mstyles.extraDetailsContainer}>
+              <Text>Quality: {item.quality}</Text>
+              <Text>In Stock: {item.quantity}</Text>
+            </View>
+            <View style={mstyles.priceContainer}>
+              <Text style={mstyles.price}>${item.price}</Text>
+            </View>
+            <View style={mstyles.buttonContainer}>
+              {(item.store == firebase.auth().currentUser.uid)?
+              (
+                <Button color={"#D2042D"}  title={"Can't BUY"} />
+              ):(
+                (addedInCart)?(
+                    <Button color={"#D2042D"} onPress={RemoveItemFromCart} title={"Remove From Cart"} />
+                  ): (
+                    <Button color={"#C1C2FA"} onPress={AddItemToCart} title={"Add To Cart"} />
+                  )
+              )}
+              
+            </View>
+            <View style={mstyles.extraDetailsContainer}>
+              <Text style={mstyles.creation}>{time.toDateString()}</Text>
+            </View>
+          </View>
+      </View>
+    )
+  }
   return (
-    <ScrollView style={{flex: 1}}>
     <View style={styles.container}>
         <View style={styles.imageContainer}>
           <Image resizeMode={"contain"} style={styles.image} source={{ uri: item.downloadURL }} />
@@ -188,9 +279,67 @@ export function ProductDetailsScreen(props) {
           </View>
         </View>
     </View>
-    </ScrollView>
   )
 }
+
+const mstyles=StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  imageContainer: {
+    flex: 1,
+    paddingBottom: 10,
+  },
+  image: {
+    height: 400,
+    width: "100%"
+  },
+  detailsContainer: {
+    flex: 1,
+    paddingVertical: 10 
+  },
+  header: {
+    
+  },
+  title: {
+    color: '#453284',
+    fontSize: 32,
+    fontWeight: '500'
+  },
+  store: {
+    color: '#F5A922',
+    fontSize: 24,
+    fontWeight: '400'
+  },
+  descriptionContainer: {
+  },
+  description: {
+    color: "#B4B4E6",
+    fontSize: 14,
+    fontWeight: '200'
+  },
+  extraDetailsContainer: {
+    
+  },
+  priceContainer: {
+
+  },
+  price: {
+    fontSize: 32,
+    fontWeight: '300'
+  },
+  buttonContainer: {
+    width: '50%'
+  },
+  creation: {
+    fontSize: 14,
+    fontWeight: '200',
+    color: '#999'
+  }
+})
+
 const styles=StyleSheet.create({
     container: {
         flex: 1,
@@ -199,10 +348,7 @@ const styles=StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        borderRadius: 10,
-        shadowColor: '#ddd',
-        shadowRadius: 25,
-        margin: 20,
+        padding: 20,
     },
     imageContainer: {
       flex: 1,

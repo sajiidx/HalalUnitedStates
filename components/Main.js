@@ -1,9 +1,8 @@
 import React from 'react';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import CategoryView from './main/CategoryView';
 import Home from './main/Home';
 import ProductView from './main/ProductView';
-import { View } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import {
   fetchCartItems,
@@ -17,6 +16,9 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { Dimensions } from "react-native";
+import { styles } from 'styled-system';
+
 class Main extends React.Component {
 
   componentDidMount(){
@@ -28,9 +30,15 @@ class Main extends React.Component {
   }
   
   render(){
+    if(Dimensions.get("window").width <= 580){
+      return (
+        <View style={mstyles.container}>
+          <ProductView navigation={this.props.navigation}/>
+        </View>
+    )
+    }
     return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <Home navigation={this.props.navigation} />
       <View style={{display: 'flex', flexDirection: 'row'}}>
         <View style={{width: '15%', left: 0}}>
           <CategoryView navigation={this.props.navigation}/>
@@ -59,6 +67,14 @@ const mapDispatchProps = (dispatch) => bindActionCreators({
   loadCost,
   fetchProfile
 }, dispatch);
+
+const mstyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+  }
+})
 
 export default connect(mapStateToProps, mapDispatchProps)(Main);
 

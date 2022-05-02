@@ -28,6 +28,8 @@ import CategoryProductsScreen from './screens/CategoryProductsScreen';
 import CheckoutScreen from './screens/CheckoutScreen';
 import StoreScreen from './screens/StoreScreen';
 import OrderDetailsScreen from './components/account/OrderDetails'
+import MainScreenHeader from './components/MainScreenHeader';
+import ProductDetailsScreenHeaderRight from './components/ProductDetailsScreenHeaderRight';
 
 const store = createStore(rootReducer, applyMiddleware(thunk));
 
@@ -128,7 +130,7 @@ export default class App extends Component {
       <Provider store={store}>
         <NavigationContainer>
             <Stack.Navigator initialRouteName="Home">
-              <Stack.Screen name="Home" component={MainScreen} options={{ headerShown: false }}/>
+              <Stack.Screen name="Home" component={MainScreen} options={{ header: (props) => <MainScreenHeader navigation={props.navigation} /> }}/>
               <Stack.Screen name="Sell" component={SellScreen} options={{ headerShown: false }}/>
               <Stack.Screen name="AccountContainer" component={AccountContainerScreen}/>
               <Stack.Screen name="Signout" component={SignoutScreen} options={{ headerShown: false }} />
@@ -136,7 +138,7 @@ export default class App extends Component {
               <Stack.Screen name="Inventory" component={InventoryScreen}/>
               <Stack.Screen name="Cart" component={CartScreen}/>
               <Stack.Screen name="Wishlist" component={Wishlist}/>
-              <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+              <Stack.Screen name="ProductDetails" component={ProductDetailsScreen} options={({navigation}) => ({ headerRight: () => <ProductDetailsScreenHeaderRight navigation={navigation} /> })}/>
               <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
               <Stack.Screen name="Checkout" component={CheckoutScreen} />
               <Stack.Screen name="Store" component={StoreScreen} />

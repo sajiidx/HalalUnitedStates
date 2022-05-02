@@ -3,7 +3,7 @@ import { Avatar, Card, Title, Paragraph } from 'react-native-paper';
 import firebase from 'firebase';
 import "firebase/firestore";
 import { useState, useEffect } from 'react';
-import { Image, TouchableOpacity, Text, View, StyleSheet, Button} from 'react-native';
+import { Image, TouchableOpacity, Text, View, StyleSheet, Button, Dimensions} from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchCartItems,
@@ -138,6 +138,86 @@ function Product(props) {
         )
     }
 
+    if(Dimensions.get("window").width <= 580){
+        return (
+            <View style={mstyles.container}>
+                <TouchableOpacity onPress={() => {
+                    if(item.store != firebase.auth().currentUser.uid){
+                        firebase.firestore()
+                        .collection("Logs")
+                        .add({
+                            time: firebase.firestore.FieldValue.serverTimestamp(),
+                            user: firebase.auth().currentUser.uid,
+                            userRole: "Customer",
+                            object: item.id,
+                            objectType: "Product",
+                            on: "Product",
+                            action: "Viewed",
+                            actionType: "Read"
+                        }).then((snap)=> {
+                            firebase.firestore()
+                            .collection("Activity")
+                            .doc(firebase.auth().currentUser.uid)
+                            .collection("Logs")
+                            .add({
+                                time: firebase.firestore.FieldValue.serverTimestamp(),
+                                subject: firebase.auth().currentUser.uid,
+                                subjectType: "Customer",
+                                object: item.id,
+                                objectType: "Product",
+                                action: "Viewed",
+                                actionType: "Read"
+                            }).then((snap) => {
+                                recordActivity()
+                                firebase.database()
+                                .ref('products')
+                                .child(item.id)
+                                .child('clicks')
+                                .set(firebase.database.ServerValue.increment(1))
+                                .then((result) => console.log("Done"))
+                            }).catch((error) => console.error(error))
+                        }).catch((error) => console.error(error))
+                        
+                    }
+                    props.navigation.navigate("ProductDetails", {item});
+                }} style={mstyles.imageContainer}>
+                    <Image resizeMode={"contain"} style={mstyles.image} source={{ uri: item.downloadURL }} />
+                </TouchableOpacity>
+                <View style={mstyles.productDetails}>
+                    <Text style={mstyles.title}>{truncateString(item.title, 15)}</Text>
+                    <Text style={mstyles.category}>{category}</Text>
+                    <Text style={mstyles.price}>${item.price}</Text>
+                </View>
+                {(item.store == firebase.auth().currentUser.uid)?(
+                    <View style={mstyles.actionsContainer}>
+                        <Text style={{color: '#D2042D', fontWeight: '400'}}>Can't like or buy your own products</Text>
+                    </View>
+                ): (
+                    <View style={mstyles.actionsContainer}>
+                        {(addedInWishlist)?(
+                            <TouchableOpacity onPress={RemoveItemFromWishList} >
+                                <MaterialCommunityIcons name="heart" size={24} color={"red"} />
+                            </TouchableOpacity>
+                        ): (
+                            <TouchableOpacity onPress={AddItemInWishList} >
+                                <MaterialCommunityIcons name="heart-outline" size={24} color={"darkgrey"} />
+                            </TouchableOpacity>
+                        )}
+                        {(addedInCart)?(
+                            <TouchableOpacity onPress={RemoveItemFromCart} >
+                                <MaterialCommunityIcons name="cart-off" size={24} color={"darkgrey"} />
+                            </TouchableOpacity>
+                        ):(
+                            <TouchableOpacity onPress={AddItemToCart} >
+                                <MaterialCommunityIcons name="cart-plus" size={24} color={"darkgrey"} />
+                            </TouchableOpacity>
+                        )}
+                </View>
+                )}
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => {
@@ -220,6 +300,46 @@ function Product(props) {
         </View>
     );
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 5,
+        backgroundColor: '#fff',
+    },
+    imageContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    image: {
+        height: 150,
+        width: 150,
+    },
+    productDetails: {
+    },
+    title: {
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+    price: {
+        color: '#F5A922',
+        fontSize: 18,
+        fontWeight: '500'
+    },
+    category: {
+        color: "#B4B4E6",
+        fontSize: 14,
+        fontWeight: '300'
+    },
+    actionsContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    }
+})
+
+
 const styles = StyleSheet.create({
     container: {
         display: 'flex',

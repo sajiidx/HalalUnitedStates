@@ -47,13 +47,14 @@ function Home(props) {
     return (
         <View style={{minHeight: 75, maxHeight: 100}}>
             <View style={{ zIndex: 55, justifyContent:'center', position: 'absolute', left: 0, right: 0, top: 0, backgroundColor: '#131921', flexDirection: 'row', alignItems: 'center'}}>
-                <View style={{width: 100, height: 40, margin: 5, marginHorizontal: 10}}>
-                    <Image source={{uri: require('../../images/amazon-log.png')}} style={{ tintColor: 'white', height: 50, width: 100, resizeMode: 'center'}} />
+                <View style={{ justifyContent: 'center', alignItems: 'center' ,width: 100, height: 40, margin: 5, marginHorizontal: 10}}>
+                    <Text style={{color: '#fff', fontSize: 16, fontWeight: 'bold'}}>L O G O M E</Text>
+                    {/* <Image source={{uri: require('../../images/amazon-log.png')}} style={{ tintColor: 'white', height: 50, width: 100, resizeMode: 'center'}} /> */}
                 </View>
                 <TouchableOpacity>
                     <View style={{ justifyContent: 'center', width: 100, backgroundColor: '#e7e7eb', height: 40, borderRadius: 4, paddingHorizontal: 10 }}>
                         <Text style={{ fontSize: 12 }}>Deliver to</Text>
-                        <Text style={{ fontWeight: 'bold' }}>Pakistan</Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 12 }}>United States</Text>
                     </View>
                 </TouchableOpacity>
                 <View style={{ flex: 0.8, margin: 5, height: '80%', justifyContent: 'center' }}>

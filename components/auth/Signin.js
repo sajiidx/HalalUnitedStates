@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity, CheckBox } from 'react-native';
-
+import { Dimensions } from "react-native";
 import firebase from 'firebase';
 
 export class Signin extends Component{
@@ -28,6 +28,41 @@ export class Signin extends Component{
     }
 
     render(){
+        if(Dimensions.get("window").width <= 580){
+            return (
+                <View style={mstyles.container}>
+                    <View style={mstyles.credentialsContainer}>
+                        <Text style={{fontSize: 30, fontWeight: 'bold'}}>Get Started Selling On Emporium</Text>
+                        <View style={mstyles.inputBox}>
+                            <Text style={mstyles.label}>Email</Text>
+                            <TextInput onChangeText={(email) => this.setState({email})} style={mstyles.textInput}/>
+                        </View>
+                        <View style={mstyles.inputBox}>
+                            <Text style={mstyles.label}>Password</Text>
+                            <TextInput style={mstyles.textInput} onChangeText={(password) => this.setState({password})} secureTextEntry={true}/>
+                            <View style={mstyles.checkboxContainer}>
+                                <CheckBox value={this.state.isSelected} onValueChange={(isSelected) =>this.setState({isSelected})} style={mstyles.checkbox} />
+                                <Text style={mstyles.checkboxLabel}>Remember me?</Text>
+                            </View>
+                        </View>
+                        <View style={mstyles.buttonBox}>
+                            <Button onPress={()=> this.onSignIn()} color={"black"} title='Login'/>
+                        </View>
+                        <View style={{justifyContent: 'center', alignItems: 'center', marginVertical: 5}}>
+                                <TouchableOpacity onPress={() => this.props.navigation.navigate("ForgetPassword")}>
+                                    <Text style={mstyles.signupText}>Forget Password?</Text>
+                                </TouchableOpacity>
+                            </View>
+                        <View style={mstyles.signupButtonContainer}>
+                            <Text style={mstyles.needAnAccountText}>Need an account?</Text>
+                            <TouchableOpacity style={mstyles.signupTextContainer} onPress={() => this.props.navigation.navigate("Signup")}>
+                                <Text style={mstyles.signupText}>Sign Up</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            )
+        }
         return (
             <View style={styles.container}>
                 <View style={styles.credentialsContainer}>
@@ -66,6 +101,74 @@ export class Signin extends Component{
         )
     }
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fff',
+      padding: 20,
+    },
+    credentialsContainer: {
+    },
+    headerTextContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    },
+    backIconContainer: {
+        padding: 0
+    },
+    headerText: {
+        fontSize: 20,
+    },
+    inputBox: {
+        marginVertical: 10,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+    },
+    label: {
+      fontWeight: '100',
+      marginBottom: 2,
+    },
+    textInput: {
+        width: '100%',
+        padding: 10,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 5,
+    },
+    checkboxContainer: {
+      flexDirection: "row",
+      marginBottom: 20,
+    },
+    checkbox: {
+      alignSelf: "center",
+    },
+    checkboxLabel: {
+        margin: 8,
+    },
+    buttonBox: {
+        marginBottom: 10
+    },
+    signupButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    needAnAccountText: {
+        color: '#999',
+        fontSize: 11,
+    },
+    signupTextContainer: {
+        marginLeft: 5,
+    },
+    signupText: {
+        color: 'green',
+        fontSize: 14,
+    }
+});
 
 const styles = StyleSheet.create({
     container: {
