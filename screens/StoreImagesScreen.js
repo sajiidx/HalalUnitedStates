@@ -1,4 +1,4 @@
-import { View, Text, Image, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
 import React, { Component } from 'react';
 import Product from '../components/main/Product';
 import firebase from 'firebase';
@@ -8,6 +8,8 @@ require('firebase/firestore');
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchWishlistItems, fetchCartItems, loadCartGUI } from '../redux/actions';
+
+const screenWidth = Dimensions.get("window").width
 
 export function StoreImagesScreen(props) {
     const [urls, setURLs] = useState([]);
@@ -23,14 +25,14 @@ export function StoreImagesScreen(props) {
     }, []);
 
     const renderProducts = () => {
-        if(!timeout && urls.length == 0){
+        if(!timeout && (!urls || urls.length == 0)){
             return (
                 <View style={styles.container}>
                     <ActivityIndicator size={32} color={'#111'}/>
                 </View>
             )
         }
-        else if(timeout && urls.length == 0){
+        else if(timeout && (!urls || urls.length == 0)){
             return (
                 <View style={styles.container}>
                     <Text>Nothing To Show!</Text>
@@ -45,6 +47,38 @@ export function StoreImagesScreen(props) {
             )
         });
     }
+    if(screenWidth <= 580){
+        if(!timeout && (!urls || urls.length == 0)){
+            return (
+                <View style={styles.container}>
+                    <ActivityIndicator size={32} color={'#111'}/>
+                </View>
+            )
+        }
+        else if(timeout && (!urls || urls.length == 0)){
+            return (
+                <View style={styles.container}>
+                    <Text>Nothing To Show!</Text>
+                </View>
+            )
+        }
+        return (
+            <View style={mstyles.container}>
+                <FlatList
+                    data={urls}
+                    renderItem={({item}) => (
+                        <View style={mstyles.imageContainer}>
+                            <Image resizeMode={'contain'} source={{uri: item.link}} style={mstyles.image}/>
+                        </View>
+                    )}
+                    keyExtractor={(item, index) => index.toString()}
+                    numColumns={2}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        )
+    }
 
     return (
         <View style={styles.xcontainer}>
@@ -52,6 +86,29 @@ export function StoreImagesScreen(props) {
         </View>
     );
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    xcontainer: {
+        backgroundColor: '#fff',
+        flexWrap: 'wrap', 
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'flex-start',
+        padding: 5
+    },
+    imageContainer: {
+        flex: 1
+    },
+    image: {
+        width: '100%',
+        height: 100,
+    }
+})
 
 const styles = StyleSheet.create({
     container: {

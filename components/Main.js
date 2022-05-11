@@ -2,7 +2,7 @@ import React from 'react';
 import CategoryView from './main/CategoryView';
 import Home from './main/Home';
 import ProductView from './main/ProductView';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 
 import {
   fetchCartItems,
@@ -33,7 +33,11 @@ class Main extends React.Component {
     if(Dimensions.get("window").width <= 580){
       return (
         <View style={mstyles.container}>
-          <ProductView navigation={this.props.navigation}/>
+          <ScrollView style={{flex: 1}} showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
+            <View style={{flex: 1}}>
+              <ProductView navigation={this.props.navigation}/>
+            </View>
+          </ScrollView>
         </View>
     )
     }

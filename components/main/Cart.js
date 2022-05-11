@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, Button, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import firebase from 'firebase';
 require("firebase/firestore");
 import { 
@@ -33,6 +33,7 @@ function truncateString(str, num) {
     }
 }
 
+const screenWidth = Dimensions.get("window").width
 
 function Cart(props) {
     const [products, setProducts] = useState([]);
@@ -45,6 +46,26 @@ function Cart(props) {
         return(
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff'}}>
                 <Text>Nothing Here</Text>
+            </View>
+        )
+    }
+    if(screenWidth <= 580){
+        return (
+            <View style={mstyles.container}>
+                <FlatList
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                    style={{flex: 1}}
+                    data={products}
+                    renderItem={({item}) => <CartItem item={item} />}
+                    keyExtractor={(item, index) => index.toString()}
+                    ListFooterComponent={() => (
+                        <View style={{backgroundColor: '#E8E8E8', paddingBottom: 20}}>
+                            <OrderSummary items={products} navigation={props.navigation} />
+                        </View>
+                    )}
+                    
+                />
             </View>
         )
     }
@@ -64,6 +85,49 @@ function Cart(props) {
         </View>
     )
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#F5F5F5'
+    },
+    imageContainer: {
+        margin: 0,
+        padding: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    image: {
+        height: 200,
+        width: 200,
+    },
+    productDetails: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: 10,
+        paddingHorizontal: 20,
+    },
+    title: {
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+    price: {
+        color: 'green',
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    actionsContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        margin: 10,
+        paddingHorizontal: 20,
+        width: '100%'
+    }
+})
 
 const styles = StyleSheet.create({
     container: {

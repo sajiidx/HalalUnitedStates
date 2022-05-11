@@ -35,6 +35,11 @@ function truncateString(str, num) {
   }
 
 function Product(props) {
+    if(!props.currentUser){
+        return(
+            <View style={{flex: 1}}></View>
+        )
+    }
     const {item} = props;
     const [sdel, setSdel] = useState(props.sdel)
     const [seller, setSeller] = useState('');
@@ -71,7 +76,7 @@ function Product(props) {
     
 
     useEffect(() => {
-        if(count == 0 && item.store != firebase.auth().currentUser.uid){
+        if(count == 0 && item.store != props.currentUser.id){
             firebase.database()
             .ref('products')
             .child(item.id)
@@ -118,7 +123,7 @@ function Product(props) {
                 setAddedInCart(false)
             }
         }
-    }, [props.cart.items, props.wishlist.items, props.gui.cart.items, props.gui.wishlist.items]);
+    }, [props.currentUser, props.cart.items, props.wishlist.items, props.gui.cart.items, props.gui.wishlist.items]);
 
     if(sdel){
         return (
@@ -142,12 +147,12 @@ function Product(props) {
         return (
             <View style={mstyles.container}>
                 <TouchableOpacity onPress={() => {
-                    if(item.store != firebase.auth().currentUser.uid){
+                    if(item.store != props.currentUser.id){
                         firebase.firestore()
                         .collection("Logs")
                         .add({
                             time: firebase.firestore.FieldValue.serverTimestamp(),
-                            user: firebase.auth().currentUser.uid,
+                            user: props.currentUser.id,
                             userRole: "Customer",
                             object: item.id,
                             objectType: "Product",
@@ -157,11 +162,11 @@ function Product(props) {
                         }).then((snap)=> {
                             firebase.firestore()
                             .collection("Activity")
-                            .doc(firebase.auth().currentUser.uid)
+                            .doc(props.currentUser.id)
                             .collection("Logs")
                             .add({
                                 time: firebase.firestore.FieldValue.serverTimestamp(),
-                                subject: firebase.auth().currentUser.uid,
+                                subject: props.currentUser.id,
                                 subjectType: "Customer",
                                 object: item.id,
                                 objectType: "Product",
@@ -188,7 +193,7 @@ function Product(props) {
                     <Text style={mstyles.category}>{category}</Text>
                     <Text style={mstyles.price}>${item.price}</Text>
                 </View>
-                {(item.store == firebase.auth().currentUser.uid)?(
+                {(item.store == props.currentUser.id)?(
                     <View style={mstyles.actionsContainer}>
                         <Text style={{color: '#D2042D', fontWeight: '400'}}>Can't like or buy your own products</Text>
                     </View>
@@ -196,20 +201,20 @@ function Product(props) {
                     <View style={mstyles.actionsContainer}>
                         {(addedInWishlist)?(
                             <TouchableOpacity onPress={RemoveItemFromWishList} >
-                                <MaterialCommunityIcons name="heart" size={24} color={"red"} />
+                                <MaterialCommunityIcons name="heart" size={28} color={"red"} />
                             </TouchableOpacity>
                         ): (
                             <TouchableOpacity onPress={AddItemInWishList} >
-                                <MaterialCommunityIcons name="heart-outline" size={24} color={"darkgrey"} />
+                                <MaterialCommunityIcons name="heart-outline" size={28} color={"darkgrey"} />
                             </TouchableOpacity>
                         )}
                         {(addedInCart)?(
                             <TouchableOpacity onPress={RemoveItemFromCart} >
-                                <MaterialCommunityIcons name="cart-off" size={24} color={"darkgrey"} />
+                                <MaterialCommunityIcons name="cart" size={28} color={"#1DBF73"} />
                             </TouchableOpacity>
                         ):(
                             <TouchableOpacity onPress={AddItemToCart} >
-                                <MaterialCommunityIcons name="cart-plus" size={24} color={"darkgrey"} />
+                                <MaterialCommunityIcons name="cart-arrow-down" size={28} color={"darkgrey"} />
                             </TouchableOpacity>
                         )}
                 </View>
@@ -217,16 +222,17 @@ function Product(props) {
             </View>
         );
     }
+    
 
     return (
         <View style={styles.container}>
             <TouchableOpacity onPress={() => {
-                if(item.store != firebase.auth().currentUser.uid){
+                if(item.store != props.currentUser.id){
                     firebase.firestore()
                     .collection("Logs")
                     .add({
                         time: firebase.firestore.FieldValue.serverTimestamp(),
-                        user: firebase.auth().currentUser.uid,
+                        user: props.currentUser.id,
                         userRole: "Customer",
                         object: item.id,
                         objectType: "Product",
@@ -236,11 +242,11 @@ function Product(props) {
                     }).then((snap)=> {
                         firebase.firestore()
                         .collection("Activity")
-                        .doc(firebase.auth().currentUser.uid)
+                        .doc(props.currentUser.id)
                         .collection("Logs")
                         .add({
                             time: firebase.firestore.FieldValue.serverTimestamp(),
-                            subject: firebase.auth().currentUser.uid,
+                            subject: props.currentUser.id,
                             subjectType: "Customer",
                             object: item.id,
                             objectType: "Product",
@@ -267,30 +273,30 @@ function Product(props) {
                 <Text style={styles.category}>{category}</Text>
                 <Text style={styles.price}>${item.price}</Text>
             </View>
-            {(item.store == firebase.auth().currentUser.uid)?(
+            {(item.store == props.currentUser.id)?(
                 <View style={styles.actionsContainer}>
-                    <Text style={{color: '#D2042D', fontWeight: '400'}}>Can't like or buy your own products</Text>
+                    <Text style={{ fontSize: 12, color: '#D2042D', fontWeight: '400'}}>Can't like or buy your own products</Text>
                 </View>
             ): (
                 <View style={styles.actionsContainer}>
                 
                     {(addedInWishlist)?(
                         <TouchableOpacity onPress={RemoveItemFromWishList} >
-                            <MaterialCommunityIcons name="heart" size={24} color={"red"} />
+                            <MaterialCommunityIcons name="heart" size={28} color={"red"} />
                         </TouchableOpacity>
                     ): (
                         <TouchableOpacity onPress={AddItemInWishList} >
-                            <MaterialCommunityIcons name="heart-outline" size={24} color={"darkgrey"} />
+                            <MaterialCommunityIcons name="heart-outline" size={28} color={"darkgrey"} />
                         </TouchableOpacity>
                     )}
                     {(addedInCart)?(
                         <TouchableOpacity onPress={RemoveItemFromCart} >
-                            <MaterialCommunityIcons name="cart-off" size={24} color={"darkgrey"} />
+                            <MaterialCommunityIcons name="cart-off" size={28} color={"darkgrey"} />
                         </TouchableOpacity>
                         // <Button onPress={RemoveItemFromCart} title="Remove from Cart" />
                     ):(
                         <TouchableOpacity onPress={AddItemToCart} >
-                            <MaterialCommunityIcons name="cart-plus" size={24} color={"darkgrey"} />
+                            <MaterialCommunityIcons name="cart-plus" size={28} color={"darkgrey"} />
                         </TouchableOpacity>
                         // <Button onPress={AddItemToCart} title="Add to Cart"/>
                     )}
@@ -303,8 +309,8 @@ function Product(props) {
 
 const mstyles = StyleSheet.create({
     container: {
-        flex: 1,
-        padding: 5,
+        flex: 1/2,
+        padding: 10,
         backgroundColor: '#fff',
     },
     imageContainer: {
@@ -323,12 +329,12 @@ const mstyles = StyleSheet.create({
     },
     price: {
         color: '#F5A922',
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: '500'
     },
     category: {
         color: "#B4B4E6",
-        fontSize: 14,
+        fontSize: 11,
         fontWeight: '300'
     },
     actionsContainer: {
@@ -342,9 +348,8 @@ const mstyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1/4,
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#fff',
         marginVertical: '1%',
         marginHorizontal: '1%',
@@ -364,7 +369,7 @@ const styles = StyleSheet.create({
     productDetails: {
         margin: '1%',
         paddingVertical: "2.5%",
-        paddingHorizontal: '5%',
+        paddingHorizontal: '5%'
     },
     title: {
         fontWeight: 'bold',
@@ -393,7 +398,8 @@ const styles = StyleSheet.create({
 const mapStateToProps = (store) => ({
     wishlist: store.userState.wishlist,
     cart: store.userState.cart,
-    gui: store.userState.gui
+    gui: store.userState.gui,
+    currentUser: store.userState.currentUser
 })
 const mapDispatchProps = (dispatch) => bindActionCreators({
     fetchWishlistItems,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native'
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions} from 'react-native'
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { fetchUser, loadCost, clearData } from '../redux/actions';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Searchbar } from 'react-native-paper';
-import {} from 'react-native-elements'
+const screenWidth = Dimensions.get("window").width;
 
 export function MainScreenHeader(props) {
     const [search, setSearch] = useState('');
@@ -20,12 +20,15 @@ export function MainScreenHeader(props) {
                 </View>
             </View>
             <View style={styles.searchBarContainer}>
-                <Searchbar
+                {(screenWidth <= 580)? (<View></View>): (
+                    <Searchbar
                     style={{height: 40}}
                     placeholder="Search"
                     onChangeText={(search) => setSearch(search)}
                     value={search}
-                />
+                />)
+                }
+                
             </View>
             <View style={styles.rightContainer}>
                 <View style={styles.navigationOptionsContainer}>

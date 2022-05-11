@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { Button, StyleSheet, Text, View, Image, ActivityIndicator, ScrollView} from 'react-native'
+import { Button, StyleSheet, Text, View, Image, ActivityIndicator, ScrollView, Dimensions} from 'react-native'
 import { Camera } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import firebase from 'firebase';
@@ -9,7 +9,9 @@ import { connect } from 'react-redux';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import StoreImagesScreen from './StoreImagesScreen';
 
-function ProfileScreen({profile}) {
+const screenWidth = Dimensions.get("window").width
+
+function ProfileScreen({profile, currentUser}) {
     const [hasGalleryPermission, setHasGalleryPermission] = useState(null);
     const [image, setImage] = useState(null);
     const [type, setType] = useState(Camera.Constants.Type.back);
@@ -17,18 +19,8 @@ function ProfileScreen({profile}) {
 
     useEffect(() => {
         (async () => {
-            const galleryStatus = await ImagePicker.requestCameraRollPermissionsAsync();
+            const galleryStatus = await ImagePicker.getMediaLibraryPermissionsAsync();
             setHasGalleryPermission(galleryStatus.status === 'granted');
-
-            // firebase.firestore()
-            // .collection('Stores')
-            // .get()
-            // .then((snap) => {
-            //     const categories = snap.docs.map((doc) => {
-            //         return {value: doc.id, label: doc.data().name}
-            //     })
-            //     setItems(categories);
-            // }).catch((err) => console.log(err))
             })();
     }, [image]);
 
@@ -48,7 +40,7 @@ function ProfileScreen({profile}) {
 
     const savedProductData = (downloadURL) => {
         firebase.firestore().collection('Stores')
-        .doc(firebase.auth().currentUser.uid)
+        .doc(currentUser.id)
         .set({
             urls: firebase.firestore.FieldValue.arrayUnion({ link: downloadURL })
         }, { merge: true })
@@ -66,7 +58,7 @@ function ProfileScreen({profile}) {
     const uploadImage = async () => {
         setBuffering(true)
         const uri = image;
-        const childPath = `stores/${firebase.auth().currentUser.uid}/${Math.random().toString(36)}`;
+        const childPath = `stores/${currentUser.id}/${Math.random().toString(36)}`;
         const response = await fetch(uri);
         const blob = await response.blob();
 
@@ -102,6 +94,88 @@ function ProfileScreen({profile}) {
         return <Text>No access to storage</Text>;
     }
 
+    if(screenWidth <= 580){
+        return (
+            <View style={mstyles.container}>
+                <View style={{flex: 1}}>
+                    <View style={mstyles.profileContainer}>
+                        <View style={mstyles.profileLeft}>
+                            <View style={mstyles.imageContainer}>
+                                <Image style={mstyles.image} source={{uri: require('../images/profile.png')}} />
+                            </View>
+                        </View>
+                        <View style={mstyles.profileRight}>
+                            <View style={mstyles.buttonsContainer}>
+                                <View  style={mstyles.buttonContainer}>
+                                    <Button  color={'#D2042D'} title='logout' onPress={() => firebase.auth()
+                                        .signOut()
+                                        .then(() => alert("User is signed out!"))
+                                        .catch((err) => alert(err.message))}
+                                    />
+                                </View>
+                                {(buffering)?(
+                                    <View  style={mstyles.buttonContainer}>
+                                        <Button  title='Buffering' color={'#D2042D'}/>
+                                    </View>
+                                ):(
+                                    <View  style={mstyles.buttonContainer}>
+                                        <Button  color={'#C1C2FA'} title='Pick Image' onPress={() => pickImage()}/>
+                                    </View>
+                                )}                            
+                            </View>
+                            <View style={mstyles.buttonsContainer}>
+                                {(image)?(
+                                    (!buffering)?(
+                                    <View style={{flex: 2, display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', alignItems: 'center'}}>
+                                        <View>
+                                            <Image style={{width: 40, height: 40}} source={{uri: image}} />
+                                        </View>
+                                        <View  style={mstyles.buttonContainer}>
+                                            <Button color={'#C1C2FA'} title='Upload Image' onPress={() => uploadImage()}/>
+                                        </View>
+                                    </View>
+                                    ):(
+                                        <View style={{flex: 2, justifyContent: 'center', alignItems: 'center'}}>
+                                            <ActivityIndicator size={24} color={'#282828'} />
+                                        </View>
+                                    )
+                                ):(
+                                    <View>
+
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                    </View>
+                    
+                    <View style={mstyles.detailsContainer}>
+                        <View style={mstyles.locationContainer}>
+                            <View>
+                                <MaterialCommunityIcons name="map-marker" size={20} color={"#999"} />
+                            </View>
+                            <Text style={mstyles.location}>{profile.state}, {profile.country}</Text>
+                        </View>
+                        <View style={mstyles.titleContainer}>
+                            <Text style={mstyles.title}>{profile.title}</Text>
+                            <Text style={mstyles.owner}>{profile.owner}</Text>
+                        </View>
+                        
+                        <View style={mstyles.aboutContainer}> 
+                            <Text style={mstyles.about}>{profile.about}</Text>
+                        </View>
+                    </View>
+                </View>
+                <View style={{flex: 1}}>
+                    <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                        <Text style={{fontWeight: '200', color: '#999'}}>Physical appearance of Store: </Text>
+                    </View>
+                    <StoreImagesScreen id={currentUser.id} />
+                </View>
+                
+            </View>
+          )
+    }
+
 
   return (
     <ScrollView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -125,8 +199,6 @@ function ProfileScreen({profile}) {
                 <View style={styles.aboutContainer}> 
                     <Text style={styles.about}>{profile.about}</Text>
                 </View>
-                
-                {/* <Text>{profile.address}</Text> */}
                 <View style={styles.buttonsContainer}>
                     <View  style={styles.buttonContainer}>
                         <Button  color={'#D2042D'} title='logout' onPress={() => firebase.auth()
@@ -173,11 +245,81 @@ function ProfileScreen({profile}) {
             <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={{fontWeight: '200', color: '#999'}}>Physical appearance of Store: </Text>
             </View>
-            <StoreImagesScreen id={firebase.auth().currentUser.uid} />
+            <View style={{flex: 1}}>
+                <StoreImagesScreen id={currentUser.id} />
+            </View>
         </View>
     </ScrollView>
   )
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        padding: 20,
+    },
+    profileContainer: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    profileLeft: {
+    },
+    profileRight: {
+        flex: 1,
+    },
+    imageContainer: {
+        overflow: 'hidden',
+        borderRadius: '50%',
+    },
+    image: {
+        width: 100,
+        height: 100
+    },
+    detailsContainer: {
+    },
+    titleContainer: {
+    },
+    locationContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
+    },
+    owner: {
+        color: '#453284',
+        fontSize: 20,
+        fontWeight: 'bold'
+    },
+    title: {
+        color: '#F5A922',
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+    location: {
+        color: '#acacac',
+        fontSize: 12,
+        fontWeight: '300'
+    },
+    aboutContainer: {
+    },
+    about: {
+        color: "#B4B4E6",
+        fontSize: 12,
+    },
+    buttonsContainer: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    buttonContainer: {
+        flex: 1,
+        marginHorizontal: 10,
+    }
+})
 
 const styles = StyleSheet.create({
     container: {
@@ -254,6 +396,7 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = (store) => ({
+    currentUser: store.userState.currentUser,
     profile: store.userState.profile
 })
 

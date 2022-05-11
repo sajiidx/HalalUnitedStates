@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 
 import firebase from 'firebase';
 import "firebase/firestore";
@@ -18,6 +18,8 @@ function IsStateValid(state){
 let months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ]
+
+const screenWidth = Dimensions.get("window").width;
 
 export class CheckoutScreen extends Component{
     constructor(props){
@@ -135,56 +137,182 @@ export class CheckoutScreen extends Component{
     }
 
     render(){
+        if(screenWidth <= 580){
+            return (
+                <View style={mstyles.container}>
+                    <View style={mstyles.credentialsContainer}>
+                        <View style={mstyles.headerTextContainer}>
+                            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                                <Text style={mstyles.headerText}>Order Placement</Text>
+                            </View>
+                        </View>
+                        <View style={mstyles.inputBoxRow}>
+                            <View style={mstyles.cellInputBox}>
+                                <Text style={mstyles.label}>House No.</Text>
+                                <TextInput onChangeText={(houseno) => this.setState({houseno})} style={mstyles.textInput}/>
+                            </View>
+                            <View style={mstyles.cellInputBox}>
+                                    <Text style={mstyles.label}>Street</Text>
+                                    <TextInput onChangeText={(street) => this.setState({street})} style={mstyles.textInput}/>
+                            </View>
+                        </View>
+                        <View style={mstyles.inputBoxRow}>
+                            <View style={mstyles.cellInputBox}>
+                                <Text style={mstyles.label}>Zip Code</Text>
+                                <TextInput onChangeText={(zip) => this.setState({zip})} style={mstyles.textInput}/>
+                            </View>
+                            <View style={mstyles.cellInputBox}>
+                                    <Text style={mstyles.label}>City</Text>
+                                    <TextInput onChangeText={(city) => this.setState({city})} style={mstyles.textInput}/>
+                            </View>
+                        </View>
+                        <View style={mstyles.inputBoxRow}>
+                            <View style={mstyles.cellInputBox}>
+                                <Text style={mstyles.label}>State</Text>
+                                <TextInput style={mstyles.textInput} onChangeText={(state) => this.setState({state})}/>
+                            </View>
+                            <View style={mstyles.cellInputBox}>
+                                <Text style={mstyles.label}>Country</Text>
+                                <TextInput style={mstyles.textInput} onChangeText={(country) => this.setState({country})}/>
+                            </View>
+                        </View>
+                        <View style={mstyles.inputBox}>
+                            <Text style={mstyles.label}>Phone No.</Text>
+                            <TextInput onChangeText={(phone) => this.setState({phone})} style={mstyles.textInput}/>
+                        </View>
+                        <View style={mstyles.buttonBox}>
+                            <Button onPress={()=> this.onOrderPlace()} color={"black"} title='Place Order'></Button>
+                        </View>
+                    </View>
+                </View>
+            );
+        }
         return (
             <View style={styles.container}>
-                <View style={styles.credentialsContainer}>
-                    <View style={styles.headerTextContainer}>
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Text style={styles.headerText}>Order Placement</Text>
-                        </View>
+                <View style={styles.headerTextContainer}>
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <Text style={styles.headerText}>Order Placement</Text>
                     </View>
-                    <View style={styles.inputBoxRow}>
-                        <View style={styles.cellInputBox}>
-                            <Text style={styles.label}>House No.</Text>
-                            <TextInput onChangeText={(houseno) => this.setState({houseno})} style={styles.textInput}/>
-                        </View>
-                        <View style={styles.cellInputBox}>
-                                <Text style={styles.label}>Street</Text>
-                                <TextInput onChangeText={(street) => this.setState({street})} style={styles.textInput}/>
-                        </View>
+                </View>
+                <View style={styles.inputBoxRow}>
+                    <View style={styles.cellInputBox}>
+                        <Text style={styles.label}>House No.</Text>
+                        <TextInput onChangeText={(houseno) => this.setState({houseno})} style={styles.textInput}/>
                     </View>
-                    <View style={styles.inputBoxRow}>
-                        <View style={styles.cellInputBox}>
-                            <Text style={styles.label}>Zip Code</Text>
-                            <TextInput onChangeText={(zip) => this.setState({zip})} style={styles.textInput}/>
-                        </View>
-                        <View style={styles.cellInputBox}>
-                                <Text style={styles.label}>City</Text>
-                                <TextInput onChangeText={(city) => this.setState({city})} style={styles.textInput}/>
-                        </View>
+                    <View style={styles.cellInputBox}>
+                            <Text style={styles.label}>Street</Text>
+                            <TextInput onChangeText={(street) => this.setState({street})} style={styles.textInput}/>
                     </View>
-                    <View style={styles.inputBoxRow}>
-                        <View style={styles.cellInputBox}>
-                            <Text style={styles.label}>State</Text>
-                            <TextInput style={styles.textInput} onChangeText={(state) => this.setState({state})}/>
-                        </View>
-                        <View style={styles.cellInputBox}>
-                            <Text style={styles.label}>Country</Text>
-                            <TextInput style={styles.textInput} onChangeText={(country) => this.setState({country})}/>
-                        </View>
+                </View>
+                <View style={styles.inputBoxRow}>
+                    <View style={styles.cellInputBox}>
+                        <Text style={styles.label}>Zip Code</Text>
+                        <TextInput onChangeText={(zip) => this.setState({zip})} style={styles.textInput}/>
                     </View>
-                    <View style={styles.inputBox}>
-                        <Text style={styles.label}>Phone No.</Text>
-                        <TextInput onChangeText={(phone) => this.setState({phone})} style={styles.textInput}/>
+                    <View style={styles.cellInputBox}>
+                            <Text style={styles.label}>City</Text>
+                            <TextInput onChangeText={(city) => this.setState({city})} style={styles.textInput}/>
                     </View>
-                    <View style={styles.buttonBox}>
-                        <Button onPress={()=> this.onOrderPlace()} color={"black"} title='Place Order'></Button>
+                </View>
+                <View style={styles.inputBoxRow}>
+                    <View style={styles.cellInputBox}>
+                        <Text style={styles.label}>State</Text>
+                        <TextInput style={styles.textInput} onChangeText={(state) => this.setState({state})}/>
                     </View>
+                    <View style={styles.cellInputBox}>
+                        <Text style={styles.label}>Country</Text>
+                        <TextInput style={styles.textInput} onChangeText={(country) => this.setState({country})}/>
+                    </View>
+                </View>
+                <View style={styles.inputBox}>
+                    <Text style={styles.label}>Phone No.</Text>
+                    <TextInput onChangeText={(phone) => this.setState({phone})} style={styles.textInput}/>
+                </View>
+                <View style={styles.buttonBox}>
+                    <Button onPress={()=> this.onOrderPlace()} color={"black"} title='Place Order'></Button>
                 </View>
             </View>
         );
     }
 }
+
+
+const mstyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#fff',
+      display: 'flex',
+      padding: 20,
+    },
+    headerTextContainer: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    headerText: {
+        fontSize: 20,
+    },
+    inputBoxRow: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginVertical: 5,
+    },
+    inputBox: {
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        marginVertical: 5,
+    },
+    label: {
+      fontWeight: '100',
+      marginBottom: 2,
+    },
+    cellTextInput: {
+      padding: 10,
+      borderColor: '#ddd',
+      borderWidth: 1,
+      borderRadius: 5,
+    },
+    textInput: {
+        padding: 10,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 5,
+    },
+    checkboxContainer: {
+      flexDirection: "row",
+      marginBottom: 20,
+    },
+    checkbox: {
+      alignSelf: "center",
+    },
+    checkboxLabel: {
+        margin: 8,
+    },
+    buttonBox: {
+        marginVertical: 10,
+    },
+    signupButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10,
+    },
+    needAnAccountText: {
+        color: '#999',
+        fontSize: 11,
+    },
+    signupTextContainer: {
+        marginLeft: 5,
+    },
+    signupText: {
+        color: 'green',
+        fontSize: 14,
+    }
+});
 
 const styles = StyleSheet.create({
     container: {

@@ -71,11 +71,25 @@ export function ProductView(props) {
 
     return (
         <View style={styles.container}>
-            {
-                renderProducts()
-            }
+            <FlatList
+                style={{flex: 1}}
+                data={products}
+                renderItem={({item}) => <Product navigation={props.navigation} item={item} />}
+                keyExtractor={(item, index) => item.id}
+                numColumns={4}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+            />
         </View>
-    );
+    )
+
+    // return (
+    //     <View style={styles.container}>
+    //         {
+    //             renderProducts()
+    //         }
+    //     </View>
+    // );
 }
 
 const mstyles = StyleSheet.create({

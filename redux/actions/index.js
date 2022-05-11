@@ -39,18 +39,22 @@ export function OnStoreProductSelectedForUpdateOperation(product){
 
 export function fetchUser() {
     return ((dispatch) => {
-        firebase.firestore()
+        try{
+            firebase.firestore()
             .collection("Customers")
             .doc(firebase.auth().currentUser.uid)
             .get()
             .then((snapshot) => {
                 if (snapshot.exists) {
-                    dispatch({ type: actions.USER_STATE_CHANGE, currentUser: snapshot.data() });
+                    dispatch({ type: actions.USER_STATE_CHANGE, currentUser: {id: snapshot.id, ...snapshot.data()} });
                 }
                 else {
                     console.log('Customer does not exist');
                 }
             })
+        } catch(ex) {
+            console.log(ex);
+        }
     })
 }
 

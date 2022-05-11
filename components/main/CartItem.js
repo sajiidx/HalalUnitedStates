@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Image, Button, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, FlatList, Image, Button, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import firebase from 'firebase';
 require("firebase/firestore");
 import { 
@@ -34,6 +34,8 @@ function truncateString(str, num) {
 }
 let wishlist = {};
 let cart = {};
+
+const screenWidth = Dimensions.get("window").width
 
 const CartItem = function(props){
     const [item, setItem] = useState(props.item);
@@ -85,6 +87,33 @@ const CartItem = function(props){
         setItem(props.item)
     }, [props.item.id, props.item, props.wishlist, props.cart, props.gui.cart.items]);
 
+    if(screenWidth <= 580){
+        return (
+            <View key={item.id} style={mstyles.container}>
+                <View style={mstyles.imageContainer}>
+                    <Image resizeMode='contain' source={{uri: item.downloadURL}} style={mstyles.image} />
+                </View>
+                <View style={{flex: 1}}>
+                    <View style={mstyles.productDetails}>
+                        <View style={{flex: 2}}>
+                            <Text style={mstyles.title}>{truncateString(item.title, 35)}</Text>
+                            <Text style={{marginVertical: 5, fontWeight: '300', fontSize: 10, color: "#999"}}>{category}</Text>
+                        </View>
+                        <View style={{flex: 1}}>
+                            <Text style={mstyles.price}>${item.price}</Text>
+                        </View>
+                        <View style={{flex: 2}}>
+                            <Counter id={item.id} price={item.price} initial={quantity} min={1} max={item.quantity} /> 
+                        </View>
+                        <TouchableOpacity onPress={RemoveItemFromCart} style={{flex: 1}}>
+                            <MaterialCommunityIcons style={{alignSelf: 'flex-end'}} name="close" size={24} color={"#282828"} />
+                        </TouchableOpacity>  
+                    </View>
+                </View>                
+            </View>
+        );
+    }
+
     return (
         <View key={item.id} style={styles.container}>
             <View style={styles.imageContainer}>
@@ -110,6 +139,55 @@ const CartItem = function(props){
         </View>
     );
 }
+
+const mstyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+    },
+    imageContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    image: {
+        height: 100,
+        width: 100,
+    },
+    productDetails: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    title: {
+        fontWeight: 'bold',
+        fontSize: 11,
+    },
+    price: {
+        color: '#AAA',
+        fontSize: 12,
+        fontWeight: '400',
+    },
+    counterContainer: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    actionsContainer: {
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    }
+})
+
 
 const styles = StyleSheet.create({
     container: {
